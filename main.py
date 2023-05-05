@@ -40,7 +40,7 @@ layerName = yoloNetwork.getUnconnectedOutLayersNames()
 layerOutputs = yoloNetwork.forward(layerName)
 
 
-# Initialize lists to store bounding boxes, confidences, and class IDs
+# Initialize lists to store bounding boxes, confidences, and class Ids
 boxes = []
 confidences = []
 classIds = []
@@ -53,7 +53,7 @@ for output in layerOutputs:
         classId = np.argmax(scores)
         confidence = scores[classId]
 
-        # If confidence threshold is met, save bounding box coordinates and class ID
+        # If confidence threshold is met, save bounding box coordinates and class Id
         if confidence > confidenceThreshold:
             box = detection[0:4] * np.array([W, H, W, H])
             (centerX, centerY,  width, height) = box.astype('int')
