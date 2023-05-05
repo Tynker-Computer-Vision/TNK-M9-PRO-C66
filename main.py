@@ -15,42 +15,43 @@ labelsPath = 'coco.names'
 # Load labels from file
 labels = open(labelsPath).read().strip().split('\n')
 
-# Set random seed and generate random colors for each class
-np.random.seed(10)
-COLORS = np.random.randint(0, 255, size=(len(labels), 3), dtype="uint8")
-
 # Load YOLO object detection network
-net = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
+yoloNetwork = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
 
 # Load image
 image = cv2.imread('static/img3.jpg')
 
 # Get image dimensions
-(H, W) = image.shape[:2]
+dimensions = image.shape[:2]
+H = dimensions[0]
+W = dimensions[1]
 
 # Create blob from image and set input for YOLO network
-blob = cv2.dnn.blobFromImage(
-    image, 1/255, (416, 416), (0, 0, 0), swapRB=True, crop=False)
-net.setInput(blob)
+# Syntax: blob = cv2.dnn.blobFromImage(image, scalefactor=1.0, size)
+# 1/255 is takes to normalise the pixel value from 0-255 to 0-1 as the yolo (other models also) require the pixel to be in range 0 to 1.
+# 416,416 is size of images taken by yolo model
+blob = cv2.dnn.blobFromImage(image, 1/255, (416, 416))
+yoloNetwork.setInput(blob)
 
 # Get names of unconnected output layers
-layerName = net.getUnconnectedOutLayersNames()
+layerName = yoloNetwork.getUnconnectedOutLayersNames()
 
 # Forward pass through network
-layerOutputs = net.forward(layerName)
+layerOutputs = yoloNetwork.forward(layerName)
+
 
 # Initialize lists to store bounding boxes, confidences, and class IDs
 boxes = []
 confidences = []
-classIDs = []
+classIds = []
 
 # Process each output from YOLO network
 for output in layerOutputs:
     for detection in output:
         # Get class scores and ID of class with highest score
         scores = detection[5:]
-        classID = np.argmax(scores)
-        confidence = scores[classID]
+        classId = np.argmax(scores)
+        confidence = scores[classId]
 
         # If confidence threshold is met, save bounding box coordinates and class ID
         if confidence > confidenceThreshold:
@@ -61,26 +62,28 @@ for output in layerOutputs:
 
             boxes.append([x, y, int(width), int(height)])
             confidences.append(float(confidence))
-            classIDs.append(classID)
+            classIds.append(classId)
+
 
 # Apply Non Maxima Suppression to remove overlapping bounding boxes
-detectionNMS = cv2.dnn.NMSBoxes(
-    boxes, confidences, confidenceThreshold, NMSThreshold)
+indexes = cv2.dnn.NMSBoxes(boxes, confidences, confidenceThreshold, NMSThreshold)
 
-# If at least one detection remains after NMS
-if (len(detectionNMS) > 0):
-    # Process each remaining detection
-    for i in detectionNMS.flatten():
-        # Get bounding box coordinates and class color
-        (x, y) = (boxes[i][0], boxes[i][1])
-        (w, h) = (boxes[i][2], boxes[i][3])
-        color = [int(c) for c in COLORS[classIDs[i]]]
+font = cv2.FONT_HERSHEY_SIMPLEX
+for i in range(len(boxes)):
+    if i in indexes:
+        x = boxes[i][0]
+        y = boxes[i][1]
+        w = boxes[i][2]
+        h = boxes[i][3]       
 
-        # Draw bounding box and label on image
+        label = labels[classIds[i]]
+ 
+        # default red color
+        color = (0,0,255)
         cv2.rectangle(image, (x, y), (x + w, y + h), color, 3)
-        text = '{}: {:.2f}'.format(labels[classIDs[i]], confidences[i]*100)
-        cv2.putText(image, text, (x, y - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, 3)
+        text = '{}: {:.2f}'.format(label, confidences[i]*100)
+        cv2.putText(image, text, (x, y - 5), font, 1, color, 3)
+                    
 
 # Display image with bounding boxes and labels
 cv2.imshow('Image', image)

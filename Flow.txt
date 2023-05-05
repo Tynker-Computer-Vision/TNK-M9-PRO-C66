@@ -1,0 +1,59 @@
+Activity 1
+= We will give import the libraries and loading and displaying image as boilerplate
+= Teacher will talk about today's class agenda
+= She will explain the what is yolo model and CNN 
+= Teacher will give the demo to configure and download the yolo model
+= Teache will help the student to create the yolo network
+= Teacher will explain why blob need to create before object detection
+= Teacher will pass blob as input to yolo network
+= Teacher will get the unconnected layers from netwrok and forward the unconnected layers to the same network
+
+Notes : 
+Blob it’s used to extract feature from the image and to resize them. YOLO accepts three sizes:
+
+320×320 it’s small so less accuracy but better speed
+609×609 it’s bigger so high accuracy and slow speed
+416×416 it’s in the middle and you get a bit of both.
+
+
+What Acheives : 
+The layerOutputs is the result of the detection. 
+layerOutputs is an array that conains all the informations about objects detected, their position and the confidence about the detection.
+
+
+Activity 2 
+= At this point the detection is done, and we only need to show the result on the screen.
+  We then loop trough the layerOutputs array, we calculate the confidence and we choose a confidence threshold.
+= Teacher will get the dimensions of the image ( H and W )
+Note :
+we set a threshold confidence of 0.5, if it’s greater we consider the object correctly detected, otherwise we skip it.
+The threshold goes from 0 to 1. 
+The closer to 1 the greater is the accuracy of the detection, while the closer to 0 the less is the accuracy but also it’s greater the number of the objects detected.
+
+
+
+
+
+Activity 3 
+= When we perform the detection, it happens that we have more boxes for the same object, so we should use another function to remove this “noise”.
+It’s called Non maximum suppresion.
+= Teacher will help the student to split the labels from coco 
+
+We finally extract all the informations and show them on the screen.
+
+Box: contain the coordinates of the rectangle sorrounding the object detected.
+Label: it’s the name of the object detected
+Confidence: the confidence about the detection from 0 to 1.
+
+
+
+Conclusion
+This blog has provided an overview of the YOLO algorithm and how it is used in object detection. 
+This technique provides improved detection results compared to other object detection techniques such as Fast R-CNN and Retina-Net.
+
+
+
+
+
+
+
